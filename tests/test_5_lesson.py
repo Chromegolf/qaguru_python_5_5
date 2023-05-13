@@ -8,7 +8,7 @@ def test_student_registration_form():
     browser.element("#lastName").type("Ivanov")
     browser.element("#userEmail").type("ivanov@gmail.com")
     browser.element('[for="gender-radio-1"]').click()
-    browser.element('[id=userNumber]').type('8800100305')
+    browser.element('[id=userNumber]').type('8800100300')
 
     browser.element("#dateOfBirthInput").click()
     browser.element(".react-datepicker__month-select").click()
@@ -37,7 +37,7 @@ def test_student_registration_form():
             ("Student Name", "Ivan Ivanov"),
             ("Student Email", "ivanov@gmail.com"),
             ("Gender", "Male"),
-            ("Mobile", "8800100305"),
+            ("Mobile", "8800100300"),
             ("Date of Birth", "01 August,1990"),
             ("Subjects", "Computer Science, English"),
             ("Hobbies", "Reading"),
