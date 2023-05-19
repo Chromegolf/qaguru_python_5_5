@@ -6,7 +6,7 @@ class RegistrationPage:
 
     def open(self):
         browser.open('/automation-practice-form')
-
+## in high level
 
     def set_user_info(self, first_name, last_name):
         browser.element("#firstName").type(first_name)
