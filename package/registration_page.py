@@ -1,6 +1,6 @@
-import os
-from selene import browser, have, command
-from conftest import RESOURCE_PATH
+from selene import browser, have
+from tests.conftest import RESOURCE_PATH
+from data.users import User
 
 class RegistrationPage:
 
@@ -23,20 +23,27 @@ class RegistrationPage:
         browser.element('[id=userNumber]').type(phone)
         return self
 
-    def set_date(self, month, year, date):
+    def set_date(self, year, month, date):
         browser.element("#dateOfBirthInput").click()
-        browser.element(".react-datepicker__month-select").type(month)
-        browser.element(".react-datepicker__year-select").type(year)
+        browser.element(".react-datepicker__month-select").click()
+        browser.all(".react-datepicker__month-select option").element_by(have.exact_text(month)).click()
+        browser.element(".react-datepicker__year-select").click()
+        browser.all(".react-datepicker__year-select option").element_by(have.exact_text(year)).click()
         browser.all(".react-datepicker__day").element_by(have.exact_text(date)).click()
         return self
 
-    def set_subjects(self, first_subjects, second_subjects):
-        browser.element("#subjectsInput").type(first_subjects).press_enter()
-        browser.element("#subjectsInput").type(second_subjects).press_enter()
+    def set_subjects(self, subjects):
+        ##browser.element("#subjectsInput").type(first_subjects).press_enter()
+        ##browser.element("#subjectsInput").type(second_subjects).press_enter()
+        for subject in subjects:
+            browser.element('#subjectsInput').type(subject).press_tab()
         return self
 
-    def set_hobbies(self):
-        browser.element('[for="hobbies-checkbox-2"]').click()
+    def set_hobbies(self, hobbies):
+        ##browser.element('[for="hobbies-checkbox-2"]').click()
+        ##browser.all('#hobbiesWrapper .custom-checkbox').element_by(have.exact_text(value)).click()
+        for hobbie in hobbies:
+            browser.all('#hobbiesWrapper .custom-checkbox').element_by(have.exact_text(hobbie)).click()
         return self
 
     def set_picture(self, value):
@@ -57,20 +64,37 @@ class RegistrationPage:
     def submit(self):
         browser.element('#submit').click()
 
-    def should_registered_user(self, full_name, email, gender, phone, full_date, subjects_list, hobbies,
-                               picture, current_address, place):
+    def should_registered_user(self, user: User):
+        subjects = ', '.join(map(str, user.subjects))
+        hobbies = ','.join(map(str, user.hobbies))
         browser.element(".modal-title").should(have.text("Thanks for submitting the form"))
         browser.all(".table").all("td").should(
             have.exact_texts(
-                ("Student Name", full_name),
-                ("Student Email", email),
-                ("Gender", gender),
-                ("Mobile", phone),
-                ("Date of Birth", full_date),
-                ("Subjects", subjects_list),
+                ("Student Name", f"{user.last_name} {user.first_name}"),
+                ("Student Email", user.email),
+                ("Gender", user.gender),
+                ("Mobile", user.phone),
+                ("Date of Birth", user.birthday.strftime("%d %B,%Y")),
+                ("Subjects", subjects),
                 ("Hobbies", hobbies),
-                ("Picture", picture),
-                ("Address", current_address),
-                ("State and City", place)
+                ("Picture", user.upload_picture),
+                ("Address", user.current_address),
+                ("State and City", f"{user.state} {user.city}")
             )
         )
+
+    def register(self, user: User):
+        self.set_user_info(user.last_name, user.first_name)
+        self.set_contact_info(user.email, user.phone)
+        self.set_gender(user.gender)
+        self.set_date(user.birthday.strftime("%Y"),
+                      user.birthday.strftime("%B"),
+                      user.birthday.strftime("%-d"))
+        self.set_subjects(user.subjects)
+        self.set_hobbies(user.hobbies)
+        self.set_picture(user.upload_picture)
+        self.set_current_address(user.current_address)
+        self.set_state_and_city(user.state, user.city)
+
+
+
